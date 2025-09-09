@@ -59,7 +59,19 @@ services:
       - web
     networks:
       - frontend
-      - coolify  
+      - coolify
+    labels:  
+      - traefik.enable=true
+      - traefik.docker.network=coolify
+      - traefik.http.routers.op.rule=Host(`openproject.gbcproadlabs.de`)
+      - traefik.http.routers.op.entrypoints=https
+      - traefik.http.routers.op.tls.certresolver=letsencrypt
+      - traefik.http.services.op.loadbalancer.server.port=80
+      # optionaler HTTP→HTTPS Redirect:
+      - traefik.http.routers.op-http.rule=Host(`openproject.gbcproadlabs.de`)
+      - traefik.http.routers.op-http.entrypoints=http
+      - traefik.http.routers.op-http.middlewares=op-redirect
+      - traefik.http.middlewares.op-redirect.redirectscheme.scheme=https
 
   web:
     <<: *app
@@ -73,17 +85,6 @@ services:
       - seeder
     labels:
       - autoheal=true
-      - traefik.enable=true
-      - traefik.docker.network=coolify
-      - traefik.http.routers.op.rule=Host(`openproject.gbcproadlabs.de`)
-      - traefik.http.routers.op.entrypoints=https
-      - traefik.http.routers.op.tls.certresolver=letsencrypt
-      - traefik.http.services.op.loadbalancer.server.port=80
-      # optionaler HTTP→HTTPS Redirect:
-      - traefik.http.routers.op-http.rule=Host(`openproject.gbcproadlabs.de`)
-      - traefik.http.routers.op-http.entrypoints=http
-      - traefik.http.routers.op-http.middlewares=op-redirect
-      - traefik.http.middlewares.op-redirect.redirectscheme.scheme=https
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8080${OPENPROJECT_RAILS__RELATIVE__URL__ROOT:-}/health_checks/default"]
       interval: 10s
