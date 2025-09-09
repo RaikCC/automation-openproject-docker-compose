@@ -72,6 +72,8 @@ services:
       - traefik.http.routers.op-http.entrypoints=http
       - traefik.http.routers.op-http.middlewares=op-redirect
       - traefik.http.middlewares.op-redirect.redirectscheme.scheme=https
+      - traefik.http.middlewares.op-xfp.headers.customrequestheaders.X-Forwarded-Proto=https
+      - traefik.http.routers.op.middlewares=op-xfp
 
   web:
     <<: *app
